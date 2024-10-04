@@ -12,6 +12,14 @@ namespace UserManagementAPI
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // Add services to the container.
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowSpecificOrigin",
+                    builder => builder.WithOrigins("http://localhost:4200") //  Angular app's URL
+                                      .AllowAnyMethod()
+                                      .AllowAnyHeader());
+            });
             // JWT Authentication setup
             var key = Encoding.ASCII.GetBytes("JWTAuthenticationUserManagementAPIPasswordVVVp1OH7Xzyr"); 
             builder.Services.AddAuthentication(options =>
@@ -39,7 +47,11 @@ namespace UserManagementAPI
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+
             var app = builder.Build();
+
+            // Use the CORS policy
+            app.UseCors("AllowSpecificOrigin");
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

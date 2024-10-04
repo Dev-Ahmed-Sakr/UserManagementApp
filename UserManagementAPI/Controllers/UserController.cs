@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using UserManagementAPI.Models;
 
 namespace UserManagementAPI.Controllers
 {
@@ -15,6 +17,20 @@ namespace UserManagementAPI.Controllers
             _context = context;
         }
 
+        //// GET: api/users (Admin and Moderator can access)
+        //[HttpGet]
+        //[Authorize(Roles = "Admin,Moderator")]
+        //public ActionResult<ResponseDTO<List<User>>> GetUsers()
+        //{
+        //    var Data = _context.Users.ToList();
+        //    ResponseDTO<List<User>> res = new ResponseDTO<List<User>>(Data)
+        //    {
+        //        Error = null,
+        //        Message = "Success"
+        //    };
+        //    //var users = _context.Users.ToList();
+        //    return Ok(res);
+        //}
         // GET: api/users (Admin and Moderator can access)
         [HttpGet]
         [Authorize(Roles = "Admin,Moderator")]
@@ -24,6 +40,19 @@ namespace UserManagementAPI.Controllers
             return Ok(users);
         }
 
+        [HttpGet("{id}")]
+        [Authorize(Roles = "Admin,Moderator")]
+        public IActionResult GetById(int id)
+        {
+            var user = _context.Users.Include(u => u.UserType).FirstOrDefault(u => u.Id == id);
+
+            if (user == null)
+            {
+                return NotFound(new { message = "User not found" });
+            }
+
+            return Ok(user);
+        }
         // POST: api/users (Admin only)
         [HttpPost]
         [Authorize(Roles = "Admin")]
