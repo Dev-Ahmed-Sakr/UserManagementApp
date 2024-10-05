@@ -6,7 +6,7 @@ public class User
 {
     [Required]
     public long Id { get; set; }
-    public Guid UserIdentifier { get; set; } = Guid.NewGuid();
+    public Guid UserIdentifier { get; set; }
     public string FirstName { get; set; }
     [Required]
     public string LastName { get; set; }

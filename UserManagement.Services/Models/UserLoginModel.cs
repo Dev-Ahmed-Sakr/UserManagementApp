@@ -1,4 +1,4 @@
-﻿namespace UserManagementAPI
+﻿namespace UserManagement.Services.Models
 {
     public class UserLoginModel
     {

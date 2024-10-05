@@ -1,5 +1,4 @@
-﻿
-using DataEntry.Services.Services.Authentication;
+﻿using DataEntry.Services.Services.Authentication;
 using Microsoft.EntityFrameworkCore;
 using UserManagement.Services.Models;
 
@@ -27,11 +26,13 @@ public class UserServices : IUserServices
                 Email = model.Email,
                 FirstName = model.FirstName,
                 LastName = model.LastName,
-                Password = model.Password,
+              //  Password = model.Password,
+                Password =  BCrypt.Net.BCrypt.HashPassword(model.Password),
                 PhoneNumber = model.PhoneNumber,
                 ZipCode = model.ZipCode,
                 CreatedBy = _identityUserService.GetUserID(),
                 CreationDate = DateTime.UtcNow,
+                UserIdentifier = Guid.NewGuid()
             };
 
             var addedUser = await _context.Users.AddAsync(toBeAddedUser);

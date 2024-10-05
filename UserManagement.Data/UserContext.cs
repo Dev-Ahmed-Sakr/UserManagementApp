@@ -19,14 +19,13 @@ public class UserContext : DbContext
             new User
             {
                 Id = 1,
-                FirstName = "Ahmed",
-                LastName = "Sakr",
-                Email = "Ahmed.Sakr@Admin.com",
+                FirstName = "Test",
+                LastName = "Admin",
+                Email = "admin@test.com",
                 Password = "Admin@123", 
                 PhoneNumber = "(123) 456-7890",
                 UserTypeId = 1, // Admin
-                Address = "123 Maadi Street",
-                ZipCode = "12345"
+                Address = "123 Admin Street"
             }
         );
         // Seeding a test admin user (use a hashed password for real cases)
@@ -34,14 +33,13 @@ public class UserContext : DbContext
             new User
             {
                 Id = 2,
-                FirstName = "Aser",
-                LastName = "Ahmed",
-                Email = "Aser.Ahmed@Moderator.com",
-                Password = "Moderator@123",
-                PhoneNumber = "(456) 456-7890",
+                FirstName = "Test",
+                LastName = "Moderator",
+                Email = "moderator@test.com",
+                Password = "Moderator@123", 
+                PhoneNumber = "(123) 456-7890",
                 UserTypeId = 2, // Moderator
-                Address = "123 Maadi Street",
-                ZipCode = "12345"
+                Address = "123 Moderator Street"
             }
         );
     }

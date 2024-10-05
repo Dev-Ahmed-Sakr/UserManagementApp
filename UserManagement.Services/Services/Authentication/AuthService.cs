@@ -1,130 +1,79 @@
-﻿namespace DataEntry.Services.Services.Authentication;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using UserManagement.Services.Models;
+
+namespace DataEntry.Services.Services.Authentication;
 
 
 
 public class AuthService : IAuthService
 {
-    //private readonly UserManager<User> _userManager;
-    //private readonly SignInManager<User> _signInManager;
-    //private readonly IOptions<ApplicationSettings> _appSettings;
-
-    //public AuthService(UserManager<User> userManager, SignInManager<User> signInManager, IOptions<ApplicationSettings> appSettings)
-    //{
-    //    _userManager = userManager;
-    //    _signInManager = signInManager;
-    //    _appSettings = appSettings;
-    //}
-
-    //public async Task<ResponseDTO<LoginDTO>> LoginAsync(string username, string password)
-    //{
-    //    ResponseDTO<LoginDTO> generalDTO = new(null);
-    //    try
-    //    {
-    //        User? user = null;
-    //        if (!string.IsNullOrEmpty(username))
-    //        {
-    //            user = await _userManager.Users.Where(x => x.UserName == username)
-    //                                            .Include(x => x.UserType)
-    //                                            .Include(x => x.Country)
-    //                                            .Include(x => x.Company)
-    //                                            .FirstOrDefaultAsync();
-
-    //        }
-    //        if (user is null)
-    //        {
-    //            generalDTO.Error = new()
-    //            {
-    //                ErrorCode = 404,
-    //                Message = "User Not Found"
-    //            };
-    //            return generalDTO;
-
-    //        }
+    private readonly UserContext _context;
+    private readonly IConfiguration _configuration;
 
 
-    //        var result = await _signInManager.PasswordSignInAsync(username, password, isPersistent: false, lockoutOnFailure: false);
-    //        if (result.Succeeded)
-    //        {
-    //            SymmetricSecurityKey? secretKey = new(Encoding.UTF8.GetBytes(_appSettings.Value.JWT_Secret));
-    //            var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
-    //            IList<string> roles = await _userManager.GetRolesAsync(user);
-    //            List<Claim> Claims = new();
+    public AuthService(UserContext context, IConfiguration configuration)
+    {
+        _context = context;
+        _configuration = configuration;
+    }
+    public async Task<ResponseDTO<string>> LoginAsync(UserLoginModel loginUser)
+    {
+        try
+        {
+            var user = await _context.Users.Include(u => u.UserType).SingleOrDefaultAsync(u => u.Email == loginUser.Email);
 
-    //            // Add roles as multiple claims
-    //            foreach (var role in roles)
-    //            {
-    //                Claims.Add(new Claim("Roles", role));
-    //                Claims.Add(new Claim(ClaimTypes.Role, role));
-    //            }
+            if (user == null || !BCrypt.Net.BCrypt.Verify(loginUser.Password, user.Password))
+            {
+                // Password is valid, generate JWT token
+                return new ResponseDTO<string>
+                {
+                    Data = "",
+                    IsSuccess = false,
+                    Message = "Failed to login"
+                };
+            }
 
-    //            Claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id));
-    //            Claims.Add(new Claim(ClaimTypes.MobilePhone, user.PhoneNumber));
-    //            Claims.Add(new Claim(ClaimTypes.Email, user.Email));
-    //            Claims.Add(new Claim(ClaimTypes.Name, user.Name));
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
 
-    //            Claims.Add(new Claim("UserId", user.Id));
-    //            Claims.Add(new Claim("UserName", user.UserName));
-    //            Claims.Add(new Claim("UserTypeId", user.UserTypeId.ToString()));
-    //            Claims.Add(new Claim("Email", user.Email));
-    //            Claims.Add(new Claim("Name", user.Name));
-    //            Claims.Add(new Claim("LocationId", user.LocationId.HasValue ? user.LocationId.Value.ToString() : string.Empty));
-    //            Claims.Add(new Claim("CompanyId", user.CompanyId.HasValue ? user.CompanyId.Value.ToString() : string.Empty));
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[]
+                {
+                new Claim(ClaimTypes.NameIdentifier, user.UserIdentifier.ToString()),
+                new Claim(ClaimTypes.Name, user.Email),
+                new Claim(ClaimTypes.Role, user.UserType.Name)
+            }),
+                Expires = DateTime.UtcNow.AddHours(2),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
 
-    //            JwtSecurityToken tokeOptions = new(
-    //                                                issuer: _appSettings.Value.Issuer,
-    //                                                audience: _appSettings.Value.Audience,
-    //                                                claims: Claims.ToList(),
-    //                                                expires: DateTime.Now.AddDays(1),
-    //                                                signingCredentials: signinCredentials
-    //                                                );
-    //            string? Token = new JwtSecurityTokenHandler().WriteToken(tokeOptions);
-    //            generalDTO = new(new LoginDTO()
-    //            {
-    //                IsFirstLogin = user.IsFirstLogin,
-    //                Token = Token
-    //            })
-    //            {
-    //                Message = "User logged in successfully"
-    //            };
-    //        }
-    //        else
-    //        {
-    //            generalDTO.Error = new()
-    //            {
-    //                ErrorCode = 404,
-    //                Message = "User Not Found"
-    //            };
-    //            return generalDTO;
-    //        }
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var tokenString = tokenHandler.WriteToken(token);
 
-    //        return generalDTO;
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        generalDTO.Error = new()
-    //        {
-    //            ErrorCode = 404,
-    //            Message = "Failed"
-    //        };
-    //        return generalDTO;
-    //    }
+            return new  ResponseDTO<string>
+            {
+                Data = tokenString,
+                IsSuccess = true,
+                Message = ""
+            };
+        }
+        catch (Exception)
+        {
+            return new ResponseDTO<string>
+            {
+                Data = "",
+                IsSuccess = false,
+                Message = "Failed to login"
+            };
+        }
+    }
 
-    //}
-
-    //public async Task<ResponseDTO<bool>> ChangePasswordAsync(string username, string currentPassword, string newPassword)
-    //{
-    //    var user = await _userManager.FindByNameAsync(username);
-    //    if (user == null)
-    //    {
-    //        return new ResponseDTO<bool>(false) { Error = new ErrorDTO { ErrorCode = 404, Message = "User Not Found " }, Message = "Failed" };
-    //    }
-    //    user.IsFirstLogin = false;
-    //    var result = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
-    //    return new ResponseDTO<bool>(result.Succeeded)
-    //    {
-    //        Message = "Success"
-    //    };
-
-    //}
 }
 

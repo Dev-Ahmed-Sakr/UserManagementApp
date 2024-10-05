@@ -8,7 +8,7 @@ namespace DataEntry.RegisterServices
 
         public static void RegisterServices(this IServiceCollection services)
         {
-            //services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserServices, UserServices>();
             services.AddScoped<IIdentityUserService, IdentityUserService>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();

@@ -1,6 +1,8 @@
-﻿namespace DataEntry.Services.Services.Authentication;
+﻿using UserManagement.Services.Models;
+
+namespace DataEntry.Services.Services.Authentication;
 
 public interface IAuthService
 {
-    //Task<ResponseDTO<LoginDTO>> LoginAsync(string username, string password);
+    Task<ResponseDTO<string>> LoginAsync(UserLoginModel loginUser);
 }
