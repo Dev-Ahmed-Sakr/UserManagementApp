@@ -29,6 +29,7 @@ public class UserServices : IUserServices
                 LastName = model.LastName,
                 Password = model.Password,
                 PhoneNumber = model.PhoneNumber,
+                ZipCode = model.ZipCode,
                 CreatedBy = _identityUserService.GetUserID(),
                 CreationDate = DateTime.UtcNow,
             };
@@ -76,7 +77,9 @@ public class UserServices : IUserServices
             PhoneNumber = user.PhoneNumber,
             FirstName = user.FirstName,
             LastName = user.LastName,
+            ZipCode = user.ZipCode,
             UserTypeId = user.UserTypeId
+
 
         };
         return new ResponseDTO<UpdateUserModel>
@@ -113,6 +116,7 @@ public class UserServices : IUserServices
                 Address = user.Address,
                 PhoneNumber = user.PhoneNumber,
                 Email = user.Email,
+                ZipCode= user.ZipCode,
                 UserTypeId = user.UserTypeId,
                 //UpdatedBy = _identityUserService.GetUserID();
                 //UpdateDate = toBUpdatedUser.UpdateDate; 
@@ -145,6 +149,7 @@ public class UserServices : IUserServices
             toBUpdatedUser.Address = model.Address;
             toBUpdatedUser.PhoneNumber = model.PhoneNumber;
             toBUpdatedUser.Email = model.Email;
+            toBUpdatedUser.ZipCode = model.ZipCode;
             toBUpdatedUser.UserTypeId = model.UserTypeId;
             toBUpdatedUser.UpdatedBy = _identityUserService.GetUserID();
             toBUpdatedUser.UpdateDate = DateTime.Now;

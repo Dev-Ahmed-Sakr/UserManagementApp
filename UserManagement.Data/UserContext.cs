@@ -25,7 +25,8 @@ public class UserContext : DbContext
                 Password = "Admin@123", 
                 PhoneNumber = "(123) 456-7890",
                 UserTypeId = 1, // Admin
-                Address = "123 Maadi Street"
+                Address = "123 Maadi Street",
+                ZipCode = "12345"
             }
         );
         // Seeding a test admin user (use a hashed password for real cases)
@@ -39,7 +40,8 @@ public class UserContext : DbContext
                 Password = "Moderator@123",
                 PhoneNumber = "(456) 456-7890",
                 UserTypeId = 2, // Moderator
-                Address = "123 Maadi Street"
+                Address = "123 Maadi Street",
+                ZipCode = "12345"
             }
         );
     }
