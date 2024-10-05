@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using DataEntry.Services.Services.UserRepository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using UserManagementAPI.Models;
+using UserManagement.Services.Models;
 
 namespace UserManagementAPI.Controllers
 {
@@ -10,41 +10,27 @@ namespace UserManagementAPI.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly UserContext _context;
 
-        public UserController(UserContext context)
+        private readonly IUserServices _userServices;
+        public UserController(IUserServices userServices)
         {
-            _context = context;
+
+            _userServices = userServices;
         }
 
-        //// GET: api/users (Admin and Moderator can access)
-        //[HttpGet]
-        //[Authorize(Roles = "Admin,Moderator")]
-        //public ActionResult<ResponseDTO<List<User>>> GetUsers()
-        //{
-        //    var Data = _context.Users.ToList();
-        //    ResponseDTO<List<User>> res = new ResponseDTO<List<User>>(Data)
-        //    {
-        //        Error = null,
-        //        Message = "Success"
-        //    };
-        //    //var users = _context.Users.ToList();
-        //    return Ok(res);
-        //}
-        // GET: api/users (Admin and Moderator can access)
         [HttpGet]
         [Authorize(Roles = "Admin,Moderator")]
-        public IActionResult GetUsers()
+        public async Task<IActionResult> GetUsers()
         {
-            var users = _context.Users.ToList();
+            var users = await _userServices.GetAll();
             return Ok(users);
         }
 
         [HttpGet("{id}")]
         [Authorize(Roles = "Admin,Moderator")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var user = _context.Users.Include(u => u.UserType).FirstOrDefault(u => u.Id == id);
+            var user = await _userServices.GetById(id);
 
             if (user == null)
             {
@@ -56,42 +42,48 @@ namespace UserManagementAPI.Controllers
         // POST: api/users (Admin only)
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public IActionResult CreateUser([FromBody] User newUser)
+        public async Task<IActionResult> CreateUser([FromBody] AddUserModel newUser)
         {
-            _context.Users.Add(newUser);
-            _context.SaveChanges();
-            return Ok(newUser);
+            var res = await _userServices.Create(newUser);
+            return Ok(res);
         }
 
         // PUT: api/users/{id} (Admin and Moderator can update)
-        [HttpPut("{id}")]
+        [HttpPut]
         [Authorize(Roles = "Admin,Moderator")]
-        public IActionResult UpdateUser(int id, [FromBody] User updatedUser)
+        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserModel updatedUser)
         {
-            var user = _context.Users.Find(id);
-            if (user == null) return NotFound();
+            try
+            {
+                var user = await _userServices.Update(updatedUser);
+                if (user == null) return NotFound();
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
 
-            user.FirstName = updatedUser.FirstName;
-            user.LastName = updatedUser.LastName;
-            user.Email = updatedUser.Email;
-            user.PhoneNumber = updatedUser.PhoneNumber;
-            user.Address = updatedUser.Address;
+                throw;
+            }
 
-            _context.SaveChanges();
-            return Ok(user);
         }
 
         // DELETE: api/users/{id} (Admin only)
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
-        public IActionResult DeleteUser(int id)
+        public async Task<IActionResult> DeleteUser(long id)
         {
-            var user = _context.Users.Find(id);
-            if (user == null) return NotFound();
+            try
+            {
+                var user = await _userServices.Delete(id);
+                if (user == null) return NotFound();
+                return Ok();
+            }
+            catch (Exception)
+            {
 
-            _context.Users.Remove(user);
-            _context.SaveChanges();
-            return Ok();
+                throw;
+            }
+
         }
     }
 }

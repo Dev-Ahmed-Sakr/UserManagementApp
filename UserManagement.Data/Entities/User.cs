@@ -6,7 +6,7 @@ public class User
 {
     [Required]
     public long Id { get; set; }
-
+    public Guid UserIdentifier { get; set; } = Guid.NewGuid();
     public string FirstName { get; set; }
     [Required]
     public string LastName { get; set; }
@@ -24,4 +24,11 @@ public class User
 
     [ForeignKey("UserTypeId")]
     public virtual UserType UserType { get; set; }
+    public DateTime CreationDate { get; set; }
+    public Guid CreatedBy { get; set; }
+    public DateTime? UpdateDate { get; set; }
+    public Guid? UpdatedBy { get; set; }
+    public DateTime? DeleteDate { get; set; }
+    public Guid? DeletedBy { get; set; }
+    public bool IsDeleted { get; set; }
 }

@@ -1,4 +1,5 @@
 
+using DataEntry.RegisterServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -21,7 +22,7 @@ namespace UserManagementAPI
                                       .AllowAnyHeader());
             });
             // JWT Authentication setup
-            var key = Encoding.ASCII.GetBytes("JWTAuthenticationUserManagementAPIPasswordVVVp1OH7Xzyr"); 
+            var key = Encoding.ASCII.GetBytes("JWTAuthenticationUserManagementAPIPasswordVVVp1OH7Xzyr"); // ToDo Read it from appsettings
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -41,7 +42,7 @@ namespace UserManagementAPI
             });
             // Add services to the container.
             builder.Services.AddDbContext<UserContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+            builder.Services.RegisterServices();
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();

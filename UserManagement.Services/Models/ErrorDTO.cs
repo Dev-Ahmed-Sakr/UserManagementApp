@@ -1,4 +1,4 @@
-﻿namespace UserManagementAPI.Models
+﻿namespace UserManagement.Services.Models
 {
     public class ErrorDTO
     {
