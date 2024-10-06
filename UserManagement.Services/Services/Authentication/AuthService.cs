@@ -48,9 +48,11 @@ public class AuthService : IAuthService
                 {
                 new Claim(ClaimTypes.NameIdentifier, user.UserIdentifier.ToString()),
                 new Claim(ClaimTypes.Name, user.Email),
-                new Claim(ClaimTypes.Role, user.UserType.Name)
+                new Claim(ClaimTypes.Role, user.UserType.Name),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.GivenName, $"{user.FirstName}  {user.LastName}")
             }),
-                Expires = DateTime.UtcNow.AddHours(2),
+                Expires = DateTime.UtcNow.AddDays(5), // to be changed just for test
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 

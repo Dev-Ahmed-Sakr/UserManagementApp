@@ -22,10 +22,11 @@ public class UserContext : DbContext
                 FirstName = "Test",
                 LastName = "Admin",
                 Email = "admin@test.com",
-                Password = "Admin@123", 
+                Password = "Admin@123",
                 PhoneNumber = "(123) 456-7890",
                 UserTypeId = 1, // Admin
-                Address = "123 Admin Street"
+                Address = "123 Admin Street",
+                ZipCode = "12345"
             }
         );
         // Seeding a test admin user (use a hashed password for real cases)
@@ -39,7 +40,8 @@ public class UserContext : DbContext
                 Password = "Moderator@123", 
                 PhoneNumber = "(123) 456-7890",
                 UserTypeId = 2, // Moderator
-                Address = "123 Moderator Street"
+                Address = "123 Moderator Street",
+                ZipCode = "12345"
             }
         );
     }
